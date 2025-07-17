@@ -6,17 +6,14 @@ import pandas as pd
 # Connect to the MySQL database
 def connect_to_db():
     connection = mysql.connector.connect(
-        host="172.21.163.162",       # Replace with your MySQL host
-        user="root",                 # Replace with your MySQL username
-        password="Z0ng@311#315!",    # Replace with your MySQL password
-        database="jxb_zongtrack_lbsdev"  # Replace with your MySQL database name
+       
     )
     return connection
 
 # Check if number exists in tbl_whitelist
 def check_if_number_exists(connection, number_with_prefix):
     cursor = connection.cursor()
-    query = "SELECT COUNT(*) FROM tbl_whitelist WHERE msisdn = %s"
+    query = "SELECT COUNT(*) FROM table WHERE col = %s"
     cursor.execute(query, (number_with_prefix,))
     result = cursor.fetchone()[0]  
     return result > 0 
@@ -24,7 +21,7 @@ def check_if_number_exists(connection, number_with_prefix):
 # Fetch ntn and client_name from clients table
 def get_ntn_and_client_name(connection, client_search_name):
     cursor = connection.cursor()
-    query = "SELECT client_ntn, client_name FROM clients WHERE client_name LIKE %s and client_status = 'Active'"
+    query = "SELECT col1, col1 FROM table2 WHERE col1 LIKE %s and col1 = 'Active'"
     cursor.execute(query, (f"%{client_search_name}%",))  
     result = cursor.fetchone() 
     if result:
@@ -36,7 +33,7 @@ def get_ntn_and_client_name(connection, client_search_name):
 # Check if employee already exists based on msisdn
 def check_if_employee_exists(connection, msisdn):
     cursor = connection.cursor()
-    query = "SELECT COUNT(*) FROM employees WHERE employee_username = %s"
+    query = "SELECT COUNT(*) FROM table1 WHERE col1 = %s"
     cursor.execute(query, (msisdn,))
     result = cursor.fetchone()[0] 
     return result > 0 
@@ -44,7 +41,7 @@ def check_if_employee_exists(connection, msisdn):
 # Get client_id from the clients table based on client_name
 def get_client_id(connection, client_name):
     cursor = connection.cursor()
-    query = "SELECT client_id FROM clients WHERE client_name LIKE %s and client_status = 'Active'"
+    query = "SELECT col1 FROM table3 WHERE col1 LIKE %s and col2 = 'Active'"
     cursor.execute(query, (f"%{client_name}%",))
     result = cursor.fetchone()  
     if result:
@@ -53,33 +50,17 @@ def get_client_id(connection, client_name):
         print(f"No matching client found for '{client_name}'")
         return None
 
-# Get department_id from the clients table based on client_name
-def get_department_id(connection, client_name):
-    cursor = connection.cursor()
-    query = "SELECT client_id FROM clients WHERE client_name LIKE %s and client_status = 'Active'"
-    cursor.execute(query, (f"%{client_name}%",))
-    result = cursor.fetchone()  
-    if result:
-        return result[0]  
-    else:
-        print(f"No matching client found for '{client_name}'")
-        return None
-
-# Read Excel file stored in the given path
-def read_excel_file(file_path):
-    df = pd.read_excel(file_path)
-    return df
 
 # Main process to read and insert numbers and employee names
 def process_numbers():
     connection = connect_to_db()
 
     # Read the Excel file from D drive
-    file_path = 'D:\\auto_upload_folder\\add_employee_name.xlsx'
+    file_path = 'D:\\folderName\\fileName.xlsx'
     df = read_excel_file(file_path)
 
     # Get client name from console input
-    client_search_name = input("Enter the client name to search (e.g., 'Road Prince Group'): ")
+    client_search_name = input("Enter the client name to search (e.g., 'Road Group'): ")
 
     while True:
         # Fetch client_id for the provided client name
@@ -87,7 +68,7 @@ def process_numbers():
 
         if client_id:
             # Fetch the 'created_by' field using the retrieved client_id
-            query = f"SELECT created_by FROM employees WHERE client_id = {client_id} AND is_admin = 0 LIMIT 1;"
+            query = f";"
             cursor = connection.cursor()
             cursor.execute(query)
             result = cursor.fetchone()
@@ -100,7 +81,7 @@ def process_numbers():
                 department_name = input("Enter the department name (e.g., 'Department 1'): ")
 
                 # Fetch department details using created_by and department_name
-                department_query = "SELECT * FROM departments WHERE created_by = %s AND department_name LIKE %s;"
+                department_query = ";"
                 cursor.execute(department_query, (created_by, f"%{department_name}%"))
                 department_info = cursor.fetchone()
 
@@ -128,11 +109,7 @@ def process_numbers():
                                     int_number_with_prefix = None  # Handle the error appropriately
                            
                             insert_employee_query = f"""
-                                INSERT INTO employees (employee_name, employee_username, employee_email, employee_number,
-                                employee_password, is_lbs_enabled, is_employee, client_id, department_id, created_by)
-                                VALUES ('{name}', '{int_number_with_prefix}', 'lbs_employee@zong.com.pk', '{int_number_with_prefix}',
-                                '982f790301d0cf13cba2b52fc4add9168824e71d5debf19e24b87a2f3f0c4322', 1, 1, {client_id}, {department_id}, {created_by})
-                                ON DUPLICATE KEY UPDATE employee_name = VALUES(employee_name);
+                               
                             """
                             
                             cursor.execute(insert_employee_query)
