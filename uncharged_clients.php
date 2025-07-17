@@ -1,9 +1,5 @@
 <?php
 // Database connection variables
-$servername = "172.21.163.162"; // Change if needed
-$username = "root"; // Your MySQL username
-$password = "Z0ng@311#315!"; // Your MySQL password
-$dbname = "jxb_zongtrack"; // Change to your database name
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -72,24 +68,7 @@ $selectedMonth = isset($_POST['month']) ? $_POST['month'] : 'April-2025';
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // SQL query using prepared statement
         $sql = "
-        SELECT 
-            c.client_name, 
-            c.client_master_msisdn, 
-            c.client_additional_notes, 
-            lc.clog_charging_amount 
-        FROM log_charging lc
-        INNER JOIN clients c ON lc.client_id = c.client_id
-        WHERE 
-            lc.clog_month = ? 
-            AND lc.clog_charging_status = 'FAILED' 
-            AND c.client_type = 'client' 
-            AND c.client_status = 'active' 
-            AND NOT EXISTS (
-                SELECT 1
-                FROM log_charging lc2
-                WHERE lc2.clog_charging_status = 'SUCCESS'
-                AND lc2.clog_month = lc.clog_month
-                AND lc2.client_id = lc.client_id
+       
             )";
 
         $stmt = $conn->prepare($sql);
@@ -114,10 +93,7 @@ $selectedMonth = isset($_POST['month']) ? $_POST['month'] : 'April-2025';
                 $totalAmount += $row['clog_charging_amount'];
                 echo "<tr>
                         <td>{$serial}</td>        
-                        <td>{$row['client_name']}</td>
-                        <td>{$row['client_master_msisdn']}</td>
-                        <td>{$row['client_additional_notes']}</td>
-                        <td>{$row['clog_charging_amount']}</td>
+                     
                     </tr>";
                     $serial++; // Increment serial number
             }
